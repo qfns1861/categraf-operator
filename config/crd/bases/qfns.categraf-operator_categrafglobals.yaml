@@ -1,0 +1,240 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.14.0
+  name: categrafglobals.qfns.categraf-operator
+spec:
+  group: qfns.categraf-operator
+  names:
+    kind: Categrafglobal
+    listKind: CategrafglobalList
+    plural: categrafglobals
+    singular: categrafglobal
+  scope: Namespaced
+  versions:
+  - name: v1
+    schema:
+      openAPIV3Schema:
+        description: Categrafglobal is the Schema for the categrafglobals API
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: CategrafglobalSpec defines the desired state of Categrafglobal
+            properties:
+              global:
+                properties:
+                  concurrency:
+                    type: integer
+                  hostname:
+                    type: string
+                  interval:
+                    type: integer
+                  omit_hostname:
+                    type: boolean
+                  print_configs:
+                    type: boolean
+                  providers:
+                    items:
+                      type: string
+                    type: array
+                required:
+                - concurrency
+                - hostname
+                - interval
+                - omit_hostname
+                - print_configs
+                - providers
+                type: object
+              heartbeat:
+                properties:
+                  basic_auth_pass:
+                    type: string
+                  basic_auth_user:
+                    type: string
+                  dial_timeout:
+                    type: integer
+                  enable:
+                    type: boolean
+                  headers:
+                    items:
+                      type: string
+                    type: array
+                  interval:
+                    type: integer
+                  max_idle_conns_per_host:
+                    type: integer
+                  timeout:
+                    type: integer
+                  url:
+                    type: string
+                required:
+                - basic_auth_pass
+                - basic_auth_user
+                - dial_timeout
+                - enable
+                - interval
+                - max_idle_conns_per_host
+                - timeout
+                - url
+                type: object
+              http:
+                properties:
+                  address:
+                    type: string
+                  enable:
+                    type: boolean
+                  ignore_global_labels:
+                    type: boolean
+                  ignore_hostname:
+                    type: boolean
+                  print_access:
+                    type: boolean
+                  run_mode:
+                    type: string
+                required:
+                - address
+                - enable
+                - ignore_global_labels
+                - ignore_hostname
+                - print_access
+                - run_mode
+                type: object
+              ibex:
+                properties:
+                  enable:
+                    type: boolean
+                  interval:
+                    type: string
+                  meta_dir:
+                    type: string
+                  servers:
+                    items:
+                      type: string
+                    type: array
+                required:
+                - enable
+                - interval
+                - meta_dir
+                - servers
+                type: object
+              log:
+                properties:
+                  compress:
+                    type: boolean
+                  file_name:
+                    type: string
+                  local_time:
+                    type: boolean
+                  max_age:
+                    type: integer
+                  max_backups:
+                    type: integer
+                  max_size:
+                    type: integer
+                required:
+                - compress
+                - file_name
+                - local_time
+                - max_age
+                - max_backups
+                - max_size
+                type: object
+              prometheus:
+                properties:
+                  enable:
+                    type: boolean
+                  log_level:
+                    type: string
+                  scrape_config_file:
+                    type: string
+                  wal_min_duration:
+                    type: integer
+                  wal_storage_path:
+                    type: string
+                required:
+                - enable
+                - log_level
+                - scrape_config_file
+                type: object
+              writer_opt:
+                properties:
+                  batch:
+                    type: integer
+                  chan_size:
+                    type: integer
+                required:
+                - batch
+                - chan_size
+                type: object
+              writers:
+                items:
+                  properties:
+                    basic_auth_pass:
+                      type: string
+                    basic_auth_user:
+                      type: string
+                    dial_timeout:
+                      type: integer
+                    headers:
+                      items:
+                        type: string
+                      type: array
+                    insecure_skip_verify:
+                      type: boolean
+                    max_idle_conns_per_host:
+                      type: integer
+                    timeout:
+                      type: integer
+                    tls_ca:
+                      type: string
+                    tls_cert:
+                      type: string
+                    tls_key:
+                      type: string
+                    tls_min_version:
+                      type: string
+                    url:
+                      type: string
+                  required:
+                  - dial_timeout
+                  - max_idle_conns_per_host
+                  - timeout
+                  - url
+                  type: object
+                type: array
+            required:
+            - global
+            - heartbeat
+            - http
+            - ibex
+            - log
+            - prometheus
+            - writer_opt
+            - writers
+            type: object
+          status:
+            description: CategrafglobalStatus defines the observed state of Categrafglobal
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
