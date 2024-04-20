@@ -40,15 +40,20 @@ spec:
             description: CategrafglobalSpec defines the desired state of Categrafglobal
             properties:
               global:
+                description: from config.json
                 properties:
                   concurrency:
                     type: integer
                   hostname:
                     type: string
-                  interval:
-                    type: integer
+                  labels:
+                    additionalProperties:
+                      type: string
+                    type: object
                   omit_hostname:
                     type: boolean
+                  precision:
+                    type: string
                   print_configs:
                     type: boolean
                   providers:
@@ -58,8 +63,9 @@ spec:
                 required:
                 - concurrency
                 - hostname
-                - interval
+                - labels
                 - omit_hostname
+                - precision
                 - print_configs
                 - providers
                 type: object
@@ -70,6 +76,7 @@ spec:
                   basic_auth_user:
                     type: string
                   dial_timeout:
+                    format: int64
                     type: integer
                   enable:
                     type: boolean
@@ -77,12 +84,39 @@ spec:
                     items:
                       type: string
                     type: array
-                  interval:
-                    type: integer
+                  http_proxy:
+                    properties:
+                      proxy_url:
+                        type: string
+                    required:
+                    - proxy_url
+                    type: object
                   max_idle_conns_per_host:
                     type: integer
                   timeout:
+                    format: int64
                     type: integer
+                  tls:
+                    properties:
+                      insecure_skip_verify:
+                        type: boolean
+                      tls_ca:
+                        type: string
+                      tls_cert:
+                        type: string
+                      tls_key:
+                        type: string
+                      tls_key_pwd:
+                        type: string
+                      tls_max_version:
+                        type: string
+                      tls_min_version:
+                        type: string
+                      tls_server_name:
+                        type: string
+                      use_tls:
+                        type: boolean
+                    type: object
                   url:
                     type: string
                 required:
@@ -90,7 +124,8 @@ spec:
                 - basic_auth_user
                 - dial_timeout
                 - enable
-                - interval
+                - headers
+                - http_proxy
                 - max_idle_conns_per_host
                 - timeout
                 - url
@@ -99,30 +134,77 @@ spec:
                 properties:
                   address:
                     type: string
+                  cert_file:
+                    type: string
                   enable:
                     type: boolean
+                  idle_timeout:
+                    type: integer
                   ignore_global_labels:
                     type: boolean
                   ignore_hostname:
                     type: boolean
+                  key_file:
+                    type: string
                   print_access:
                     type: boolean
+                  read_timeout:
+                    type: integer
                   run_mode:
                     type: string
+                  write_timeout:
+                    type: integer
                 required:
                 - address
+                - cert_file
                 - enable
+                - idle_timeout
                 - ignore_global_labels
                 - ignore_hostname
+                - key_file
                 - print_access
+                - read_timeout
                 - run_mode
+                - write_timeout
+                type: object
+              http_provider:
+                properties:
+                  basic_auth_pass:
+                    type: string
+                  basic_auth_user:
+                    type: string
+                  headers:
+                    items:
+                      type: string
+                    type: array
+                  interval:
+                    format: int64
+                    type: integer
+                  reload_interval:
+                    type: integer
+                  remote_url:
+                    type: string
+                  timeout:
+                    type: integer
+                required:
+                - basic_auth_pass
+                - basic_auth_user
+                - headers
+                - reload_interval
+                - remote_url
+                - timeout
                 type: object
               ibex:
                 properties:
                   enable:
                     type: boolean
                   interval:
-                    type: string
+                    description: |-
+                      A Duration represents the elapsed time between two instants
+                      as an int64 nanosecond count. The representation limits the
+                      largest representable duration to approximately 290 years.
+                    format: int64
+                    type: integer
                   meta_dir:
                     type: string
                   servers:
@@ -131,10 +213,16 @@ spec:
                     type: array
                 required:
                 - enable
-                - interval
                 - meta_dir
                 - servers
                 type: object
+              interval:
+                description: |-
+                  A Duration represents the elapsed time between two instants
+                  as an int64 nanosecond count. The representation limits the
+                  largest representable duration to approximately 290 years.
+                format: int64
+                type: integer
               log:
                 properties:
                   compress:
@@ -163,16 +251,42 @@ spec:
                     type: boolean
                   log_level:
                     type: string
+                  max_block_duration:
+                    description: |-
+                      A Duration represents the elapsed time between two instants
+                      as an int64 nanosecond count. The representation limits the
+                      largest representable duration to approximately 290 years.
+                    format: int64
+                    type: integer
+                  min_block_duration:
+                    description: |-
+                      A Duration represents the elapsed time between two instants
+                      as an int64 nanosecond count. The representation limits the
+                      largest representable duration to approximately 290 years.
+                    format: int64
+                    type: integer
+                  retention_size:
+                    type: string
+                  retention_time_duration:
+                    description: |-
+                      A Duration represents the elapsed time between two instants
+                      as an int64 nanosecond count. The representation limits the
+                      largest representable duration to approximately 290 years.
+                    format: int64
+                    type: integer
                   scrape_config_file:
                     type: string
-                  wal_min_duration:
-                    type: integer
                   wal_storage_path:
+                    type: string
+                  web_address:
                     type: string
                 required:
                 - enable
                 - log_level
+                - retention_size
                 - scrape_config_file
+                - wal_storage_path
+                - web_address
                 type: object
               writer_opt:
                 properties:
@@ -192,29 +306,45 @@ spec:
                     basic_auth_user:
                       type: string
                     dial_timeout:
+                      format: int64
                       type: integer
                     headers:
                       items:
                         type: string
                       type: array
-                    insecure_skip_verify:
-                      type: boolean
                     max_idle_conns_per_host:
                       type: integer
                     timeout:
+                      format: int64
                       type: integer
-                    tls_ca:
-                      type: string
-                    tls_cert:
-                      type: string
-                    tls_key:
-                      type: string
-                    tls_min_version:
-                      type: string
+                    tls:
+                      properties:
+                        insecure_skip_verify:
+                          type: boolean
+                        tls_ca:
+                          type: string
+                        tls_cert:
+                          type: string
+                        tls_key:
+                          type: string
+                        tls_key_pwd:
+                          type: string
+                        tls_max_version:
+                          type: string
+                        tls_min_version:
+                          type: string
+                        tls_server_name:
+                          type: string
+                        use_tls:
+                          type: boolean
+                      type: object
                     url:
                       type: string
                   required:
+                  - basic_auth_pass
+                  - basic_auth_user
                   - dial_timeout
+                  - headers
                   - max_idle_conns_per_host
                   - timeout
                   - url
@@ -222,13 +352,7 @@ spec:
                 type: array
             required:
             - global
-            - heartbeat
-            - http
-            - ibex
-            - log
-            - prometheus
-            - writer_opt
-            - writers
+            - http_provider
             type: object
           status:
             description: CategrafglobalStatus defines the observed state of Categrafglobal

@@ -8,52 +8,84 @@ metadata:
 spec:
   global:
     print_configs: false
-    hostname: ''
+    hostname: "example-hostname"
     omit_hostname: false
-    interval: 15
-    providers:
-      - local
-    concurrency: -1
-  log:
-    file_name: stdout
-    max_size: 10001
-    max_age: 1
-    max_backups: 1
-    local_time: true
-    compress: false
+    labels:
+      label1: "value1"
+      label2: "value2"
+    precision: "1s"
+    providers: ["provider1", "provider2"]
+    concurrency: 55555
   writer_opt:
     batch: 1000
-    chan_size: 1000000
+    chan_size: 55555
   writers:
-    - url: http://127.0.0.1:17000/prometheus/v1/write
-      basic_auth_user: ''
-      basic_auth_pass: ''
-      timeout: 5000
-      dial_timeout: 2500
-      max_idle_conns_per_host: 100
+    - url: "http://example-writer-url-1"
+      basic_auth_user: "user1"
+      basic_auth_pass: "pass1"
+      headers:
+        - "Header-Key-1: Header-Value-1"
+        - "Header-Key-2: Header-Value-2"
+      timeout: 30
+      dial_timeout: 10
+      max_idle_conns_per_host: 20
+    - url: "http://example-writer-url-2"
+      basic_auth_user: "user2"
+      basic_auth_pass: "pass2"
+      headers:
+        - "Header-Key-3: Header-Value-3"
+      timeout: 40
+      dial_timeout: 55555
+      max_idle_conns_per_host: 55555
   http:
-    enable: false
-    address: ':9100'
-    print_access: false
-    run_mode: release
+    enable: true
+    address: ":8080"
+    print_access: true
+    run_mode: "release"
     ignore_hostname: false
     ignore_global_labels: false
+    cert_file: "/path/to/cert.pem"
+    key_file: "/path/to/key.pem"
+    read_timeout: 55555
+    write_timeout: 55555
+    idle_timeout: 55555
+  prometheus:
+    enable: true
+    log_level: "info"
+    scrape_config_file: "/path/to/scrape-config.yml"
+    web_address: ":9090"
+    wal_storage_path: "/path/to/storage"
+    retention_size: "10GB"
   ibex:
-    enable: false
-    interval: 1000ms
+    enable: true
+    meta_dir: "/path/to/meta"
     servers:
-      - 127.0.0.1:20090
-    meta_dir: ./meta
+      - "server1"
+      - "server2"
   heartbeat:
     enable: true
-    url: http://127.0.0.1:17000/v1/n9e/heartbeat
-    interval: 10
-    basic_auth_user: ''
-    basic_auth_pass: ''
-    timeout: 5000
-    dial_timeout: 2500
-    max_idle_conns_per_host: 100
-  prometheus:
-    enable: false
-    scrape_config_file: /path/to/in_cluster_scrape.yaml
-    log_level: info
+    url: "http://example-heartbeat-url"
+    basic_auth_user: "user"
+    basic_auth_pass: "pass"
+    headers:
+      - "Header-Key-4: Header-Value-4"
+    timeout: 20
+    dial_timeout: 55555
+    max_idle_conns_per_host: 10
+    http_proxy:
+      proxy_url: "http://proxyserver:3128"
+  log:
+    file_name: "/var/log/categraf.log"
+    max_size: 100
+    max_age: 30
+    max_backups: 3
+    local_time: true
+    compress: false
+  http_provider:
+    remote_url: "http://example-provider-url"
+    headers:
+      - "Header-Key-55555: Header-Value-55555"
+    basic_auth_user: "provider_user"
+    basic_auth_pass: "provider_pass"
+    timeout: 10
+    reload_interval: 300

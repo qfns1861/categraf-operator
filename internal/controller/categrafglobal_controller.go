@@ -18,10 +18,9 @@ package controller
 
 import (
 	"context"
-	"encoding/json"
-	"io/ioutil"
-	"path/filepath"
+	"os"
 
+	"github.com/BurntSushi/toml"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -70,16 +69,20 @@ func (r *CategrafglobalReconciler) Reconcile(ctx context.Context, req ctrl.Reque
 		return ctrl.Result{}, err
 	}
 
-	jsonBytes, err := json.Marshal(&categrafglobal)
-	if err != nil {
-		logger.Error(err, "json Marshal error")
-	}
+    // 打开一个文件用于写入
+    f, err := os.Create("cateConfig.toml")
+    if err != nil {
+		logger.Error(err, "Error creating file")
+		return ctrl.Result{}, err // 退出函数
+    }
+    defer f.Close()
 
-	filePath := filepath.Join("/opt", "categrafglobal.json")
-	err = ioutil.WriteFile(filePath, jsonBytes, 0644)
-	if err != nil {
-		logger.Error(err, "ioutil WriteFile error")
-	}
+    // 使用 toml 包的 Encode 函数来将结构体编码为 TOML 并写入文件
+    if err := toml.NewEncoder(f).Encode(categrafglobal.Spec); err != nil {
+		logger.Error(err, "Error encoding TOML")
+    }
+		logger.Info("TOML configuration written successfully")
+
 	return ctrl.Result{}, nil
 }
 
