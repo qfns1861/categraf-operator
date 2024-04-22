@@ -17,4 +17,17 @@ resources:
   kind: Categrafglobal
   path: categraf-operator/api/v1
   version: v1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: categraf-operator
+  group: qfns
+  kind: CategrafMonitor
+  path: categraf-operator/api/v1
+  version: v1
+  webhooks:
+    defaulting: true
+    validation: true
+    webhookVersion: v1
 version: "3"

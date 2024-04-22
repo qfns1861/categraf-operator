@@ -30,3 +30,29 @@ rules:
   - get
   - patch
   - update
+- apiGroups:
+  - qfns.categraf-operator
+  resources:
+  - categrafmonitors
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - qfns.categraf-operator
+  resources:
+  - categrafmonitors/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - qfns.categraf-operator
+  resources:
+  - categrafmonitors/status
+  verbs:
+  - get
+  - patch
+  - update
