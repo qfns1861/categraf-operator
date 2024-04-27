@@ -6,4 +6,64 @@ metadata:
     app.kubernetes.io/managed-by: kustomize
   name: categrafmonitor-sample
 spec:
-  # TODO(user): Add fields here
+  node: test
+  monitorLite:
+    - name: cpu.toml
+      data: |
+        interval = 15
+        collect_per_cpu = false
+    - name: mem.toml
+      data: |
+        interval = 15
+        collect_per_cpu = false
+  monitorSuper:
+    - name: ping.toml
+      interval: 15
+      mappings: |
+        "192.168.88.160" = "switch001.bj"
+        "192.168.88.161" = "switch002.bj"
+      instances:
+        - name: '[[instances]]'
+          data: |
+            targets = [
+              www.baidu.com",
+              "127.0.0.1",
+              "10.4.5.6",
+              "10.4.5.7"
+            ]
+            method = "exec"
+            binary = "ping"
+            labels = { region="cloud", product="n9e" }
+            interval_times = 1
+            count = 1
+            ping_interval = 1.0
+            timeout = 3.0
+            interface = ""
+            ipv6 = false
+            size = 56
+            concurrency = 50
+    - name: exec.toml
+      interval: 15
+      mappings: |
+        "192.168.88.160" = "switch001.bj"
+        "192.168.88.161" = "switch002.bj"
+      instances:
+        - name: '[[instances]]'
+          data: |
+            targets = [
+              www.baidu.com",
+              "127.0.0.1",
+              "10.4.5.6",
+              "10.4.5.7"
+            ]
+            method = "exec"
+            binary = "ping"
+            labels = { region="cloud", product="n9e" }
+            interval_times = 1
+            count = 1
+            ping_interval = 1.0
+            timeout = 3.0
+            interface = ""
+            ipv6 = false
+            size = 56
+            concurrency = 50

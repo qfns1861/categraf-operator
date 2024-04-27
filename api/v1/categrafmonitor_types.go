@@ -29,7 +29,35 @@ type CategrafMonitorSpec struct {
 	// Important: Run "make" to regenerate code after modifying this file
 
 	// Foo is an example field of CategrafMonitor. Edit categrafmonitor_types.go to remove/update
-	Foo string `json:"foo,omitempty"`
+	Node         string         `json:"node"`
+	OtherFile    []OtherFile    `json:"otherFile,omitempty"`
+	Certificate  []Certificate  `json:"certificate,omitempty"`
+	MonitorLite  []MonitorLite  `json:"monitorLite,omitempty"`
+	MonitorSuper []MonitorSuper `json:"monitorSuper,omitempty"`
+}
+
+type OtherFile struct {
+	Name string `json:"name"`
+	Data string `json:"data"`
+}
+
+type Certificate struct {
+	Name string `json:"name"`
+	Data string `json:"data"`
+}
+type MonitorLite struct {
+	Name string `json:"name"`
+	Data string `json:"data"`
+}
+type MonitorSuper struct {
+	Name      string      `json:"name"`
+	Interval  int         `json:"interval"`
+	Mappings  string      `json:"mappings,omitempty"`
+	Instances []Instances `json:"instances"`
+}
+type Instances struct {
+	Name string `json:"name"`
+	Data string `json:"data"`
 }
 
 // CategrafMonitorStatus defines the observed state of CategrafMonitor

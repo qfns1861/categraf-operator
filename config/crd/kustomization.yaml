@@ -9,7 +9,6 @@ resources:
 patches:
 # [WEBHOOK] To enable webhook, uncomment all the sections with [WEBHOOK] prefix.
 # patches here are for enabling the conversion webhook for each CRD
-- path: patches/webhook_in_categrafglobals.yaml
 #- path: patches/webhook_in_categrafmonitors.yaml
 #+kubebuilder:scaffold:crdkustomizewebhookpatch
 

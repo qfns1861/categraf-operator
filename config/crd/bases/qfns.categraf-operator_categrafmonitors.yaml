@@ -39,10 +39,75 @@ spec:
           spec:
             description: CategrafMonitorSpec defines the desired state of CategrafMonitor
             properties:
-              foo:
+              certificate:
+                items:
+                  properties:
+                    data:
+                      type: string
+                    name:
+                      type: string
+                  required:
+                  - data
+                  - name
+                  type: object
+                type: array
+              monitorLite:
+                items:
+                  properties:
+                    data:
+                      type: string
+                    name:
+                      type: string
+                  required:
+                  - data
+                  - name
+                  type: object
+                type: array
+              monitorSuper:
+                items:
+                  properties:
+                    instances:
+                      items:
+                        properties:
+                          data:
+                            type: string
+                          name:
+                            type: string
+                        required:
+                        - data
+                        - name
+                        type: object
+                      type: array
+                    interval:
+                      type: integer
+                    mappings:
+                      type: string
+                    name:
+                      type: string
+                  required:
+                  - instances
+                  - interval
+                  - name
+                  type: object
+                type: array
+              node:
                 description: Foo is an example field of CategrafMonitor. Edit categrafmonitor_types.go
                   to remove/update
                 type: string
+              otherFile:
+                items:
+                  properties:
+                    data:
+                      type: string
+                    name:
+                      type: string
+                  required:
+                  - data
+                  - name
+                  type: object
+                type: array
+            required:
+            - node
             type: object
           status:
             description: CategrafMonitorStatus defines the observed state of CategrafMonitor
