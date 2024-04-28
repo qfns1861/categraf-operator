@@ -56,7 +56,6 @@ type MonitorSuper struct {
 	Instances []Instances `json:"instances"`
 }
 type Instances struct {
-	Name string `json:"name"`
 	Data string `json:"data"`
 }
 

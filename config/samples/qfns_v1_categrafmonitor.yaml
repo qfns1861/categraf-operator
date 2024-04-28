@@ -23,8 +23,7 @@ spec:
         "192.168.88.160" = "switch001.bj"
         "192.168.88.161" = "switch002.bj"
       instances:
-        - name: '[[instances]]'
-          data: |
+        - data: |
             targets = [
               www.baidu.com",
               "127.0.0.1",
@@ -48,8 +47,7 @@ spec:
         "192.168.88.160" = "switch001.bj"
         "192.168.88.161" = "switch002.bj"
       instances:
-        - name: '[[instances]]'
-          data: |
+        - data: |
             targets = [
               www.baidu.com",
               "127.0.0.1",
