@@ -1,5 +1,4 @@
 ## Append samples of your project ##
 resources:
-- qfns_v1_categrafglobal.yaml
 - qfns_v1_categrafmonitor.yaml
 #+kubebuilder:scaffold:manifestskustomizesamples

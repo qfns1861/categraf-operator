@@ -122,25 +122,12 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err = (&controller.CategrafglobalReconciler{
-		Client: mgr.GetClient(),
-		Scheme: mgr.GetScheme(),
-	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "Categrafglobal")
-		os.Exit(1)
-	}
 	if err = (&controller.CategrafMonitorReconciler{
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "CategrafMonitor")
 		os.Exit(1)
-	}
-	if os.Getenv("ENABLE_WEBHOOKS") != "false" {
-		if err = (&qfnsv1.CategrafMonitor{}).SetupWebhookWithManager(mgr); err != nil {
-			setupLog.Error(err, "unable to create webhook", "webhook", "CategrafMonitor")
-			os.Exit(1)
-		}
 	}
 	//+kubebuilder:scaffold:builder
 
