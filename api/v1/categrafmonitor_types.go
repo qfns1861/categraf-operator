@@ -25,10 +25,6 @@ import (
 
 // CategrafMonitorSpec defines the desired state of CategrafMonitor
 type CategrafMonitorSpec struct {
-	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
-
-	// Foo is an example field of CategrafMonitor. Edit categrafmonitor_types.go to remove/update
 	Node         string         `json:"node"`
 	OtherFile    []OtherFile    `json:"otherFile,omitempty"`
 	Certificate  []Certificate  `json:"certificate,omitempty"`
@@ -50,13 +46,13 @@ type MonitorLite struct {
 	Data string `json:"data"`
 }
 type MonitorSuper struct {
-	Name      string      `json:"name"`
-	Interval  int         `json:"interval"`
-	Mappings  string      `json:"mappings,omitempty"`
-	Instances []Instances `json:"instances"`
+	Name      string     `json:"name"`
+	Interval  int        `json:"interval" toml:"interval"`
+	Mappings  string     `json:"mappings,omitempty" toml:"mappings"`
+	Instances []Instance `json:"instances" toml:"instances"`
 }
-type Instances struct {
-	Data string `json:"data"`
+type Instance struct {
+	Data string `json:"data" toml:"data"`
 }
 
 // CategrafMonitorStatus defines the observed state of CategrafMonitor
