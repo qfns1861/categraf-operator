@@ -6,7 +6,7 @@ metadata:
     app.kubernetes.io/managed-by: kustomize
   name: categrafmonitor-sample
 spec:
-  node: test
+  node: "*"
   monitorLite:
     - name: cpu.toml
       data: |

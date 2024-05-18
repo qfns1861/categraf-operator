@@ -23,8 +23,10 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"text/template"
 
+	"github.com/go-logr/logr"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -44,48 +46,79 @@ type CategrafMonitorReconciler struct {
 //+kubebuilder:rbac:groups=qfns.categraf-operator,resources=categrafmonitors/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=qfns.categraf-operator,resources=categrafmonitors/finalizers,verbs=update
 
-var nodeName string
-
-func writeFile(filename string, content string) {
-	err := os.WriteFile(filename, []byte(content), 0644)
-	if err != nil {
-		fmt.Printf("Error writing file %s: %s\n", filename, err.Error())
-	} else {
-		fmt.Printf("File %s written successfully\n", filename)
-	}
-}
-
 func (r *CategrafMonitorReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-
 	logger := log.FromContext(ctx)
 	logger.V(2).Info("categrafMonitor event received")
 	defer func() { logger.V(2).Info("categrafMonitor event handling completed") }()
 
 	var categrafMonitor qfnsv1.CategrafMonitor
-	// 使用controller-runtime获取CR信息
 	if err := r.Get(ctx, req.NamespacedName, &categrafMonitor); err != nil {
 		if errors.IsNotFound(err) {
 			logger.Info("categrafMonitor not found. Ignoring since object must be deleted")
 			return ctrl.Result{}, nil
 		}
-		// Error reading the object - requeue the request
 		logger.Error(err, "unable to fetch categrafMonitor, requeue")
 		return ctrl.Result{}, err
 	}
-	for _, monitor := range categrafMonitor.Spec.MonitorSuper {
 
-		substrings := strings.Split(monitor.Name, ".")
-		leftPart := substrings[0]
-		folderPath := "input." + leftPart
-		fileName := strings.Split(monitor.Name, ".")[0] + ".toml"
-		filePath := filepath.Join(folderPath, fileName)
+	envNode := os.Getenv("NODE_NAME")
+	fmt.Printf("%+v\n", envNode)
+	crNode := strings.ReplaceAll(categrafMonitor.Spec.Node, "*", "")
+	node_bool := strings.Contains(envNode, crNode)
 
-		err := os.MkdirAll(folderPath, os.ModePerm)
-		if err != nil {
-			return ctrl.Result{}, err
+	if node_bool {
+		var wg sync.WaitGroup
+		var mutex sync.Mutex // Mutex for file write operations
+
+		// Process MonitorSuper
+		for _, monitor := range categrafMonitor.Spec.MonitorSuper {
+			wg.Add(1)
+			go func(m qfnsv1.MonitorSuper) {
+				defer wg.Done()
+				processMonitorSuper(logger, m, &mutex)
+			}(monitor)
 		}
 
-		tmpl, err := template.New("config").Parse(`interval = {{ .Interval }}
+		// Process MonitorLite
+		for _, monitor := range categrafMonitor.Spec.MonitorLite {
+			wg.Add(1)
+			go func(m qfnsv1.MonitorLite) {
+				defer wg.Done()
+				processMonitorLite(logger, m, &mutex)
+			}(monitor)
+		}
+
+		wg.Wait() // Wait for all goroutines to complete
+	}
+
+	return ctrl.Result{}, nil
+}
+
+func processMonitorSuper(logger logr.Logger, monitor qfnsv1.MonitorSuper, mutex *sync.Mutex) {
+	substrings := strings.Split(monitor.Name, ".")
+	leftPart := substrings[0]
+	folderPath := "categraf/input." + leftPart
+	fileName := substrings[0] + ".toml"
+	filePath := filepath.Join(folderPath, fileName)
+
+	mutex.Lock()
+	err := os.MkdirAll(folderPath, os.ModePerm)
+	if err != nil {
+		logger.Error(err, "Failed to create directory", "path", folderPath)
+		mutex.Unlock()
+		return
+	}
+
+	file, err := os.Create(filePath)
+	if err != nil {
+		logger.Error(err, "Failed to create file", "path", filePath)
+		mutex.Unlock()
+		return
+	}
+	defer file.Close()
+	mutex.Unlock()
+
+	tmpl, err := template.New("config").Parse(`interval = {{ .Interval }}
 [mappings]
 {{ .Mappings }}
 {{- range .Instances}}
@@ -93,50 +126,49 @@ func (r *CategrafMonitorReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 {{ .Data }}
 {{- end }}
 `)
-		if err != nil {
-			return ctrl.Result{}, err
-		}
-
-		file, err := os.Create(filePath)
-		if err != nil {
-			return ctrl.Result{}, err
-		}
-		defer file.Close()
-
-		err = tmpl.Execute(file, monitor)
-		if err != nil {
-			return ctrl.Result{}, err
-		}
-		fmt.Println("文件写入成功:", filePath)
+	if err != nil {
+		logger.Error(err, "Failed to parse template")
+		return
 	}
 
-	for _, monitor := range categrafMonitor.Spec.MonitorLite {
-
-		substrings := strings.Split(monitor.Name, ".")
-		leftPart := substrings[0]
-		folderPath := "input." + leftPart
-		fileName := strings.Split(monitor.Name, ".")[0] + ".toml"
-		filePath := filepath.Join(folderPath, fileName)
-
-		err := os.MkdirAll(folderPath, os.ModePerm)
-		if err != nil {
-			return ctrl.Result{}, err
-		}
-
-		file, err := os.Create(filePath)
-		if err != nil {
-			return ctrl.Result{}, err
-		}
-		defer file.Close()
-
-		_, err = io.WriteString(file, monitor.Data)
-		if err != nil {
-			return ctrl.Result{}, err
-		}
-
-		fmt.Println("文件写入成功:", filePath)
+	err = tmpl.Execute(file, monitor)
+	if err != nil {
+		logger.Error(err, "Failed to execute template", "file", filePath)
+		return
 	}
-	return ctrl.Result{}, nil
+
+	logger.Info("File written successfully", "file", filePath)
+}
+func processMonitorLite(logger logr.Logger, monitor qfnsv1.MonitorLite, mutex *sync.Mutex) {
+	substrings := strings.Split(monitor.Name, ".")
+	leftPart := substrings[0]
+	folderPath := "categraf/input." + leftPart
+	fileName := substrings[0] + ".toml"
+	filePath := filepath.Join(folderPath, fileName)
+
+	mutex.Lock()
+	err := os.MkdirAll(folderPath, os.ModePerm)
+	if err != nil {
+		logger.Error(err, "Failed to create directory", "path", folderPath)
+		mutex.Unlock()
+		return
+	}
+
+	file, err := os.Create(filePath)
+	if err != nil {
+		logger.Error(err, "Failed to create file", "path", filePath)
+		mutex.Unlock()
+		return
+	}
+	defer file.Close()
+	mutex.Unlock()
+
+	_, err = io.WriteString(file, monitor.Data)
+	if err != nil {
+		logger.Error(err, "Failed to write data to file", "file", filePath)
+		return
+	}
+	logger.Info("File written successfully", "file", filePath)
 }
 
 // SetupWithManager sets up the controller with the Manager.
